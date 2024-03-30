@@ -12,8 +12,6 @@
 
 @code
 {
-    // https://www.davidguida.net/blazor-and-2d-game-development-part-1-intro/
-
     BECanvasComponent? _canvas;
     Canvas2DContext? _context;
 
@@ -46,8 +44,8 @@
         await this._context!.ClearRectAsync(0, 0, width, height);
 
         // ToDo graphics
-        // await this._context.SetFillStyleAsync("green");
-        // await this._context.FillRectAsync(0, 0, width, height);
+        await this._context.SetFillStyleAsync("green");
+        await this._context.FillRectAsync(0, 0, width, height);
     }
 
     public class GameTime
