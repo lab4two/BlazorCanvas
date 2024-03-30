@@ -6,6 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>BlazorApp1</title>
     <base href="/" />
+    <style>
+        #container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bs-purple);
+        }
+    </style>
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="css/app.css" rel="stylesheet" />
     <link rel="icon" type="image/png" href="favicon.png" />
@@ -30,6 +38,36 @@
         <a class="dismiss">🗙</a>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
+    <script src="_content/Blazor.Extensions.Canvas/blazor.extensions.canvas.js"></script>
+    <script>
+
+        function onResize() {
+            if (!window.game.canvas)
+                return;
+
+            game.canvas.width = window.innerWidth;
+            game.canvas.height = window.innerHeight;
+        }
+
+        function gameLoop(timeStamp) {
+            window.requestAnimationFrame(gameLoop);
+            game.instance.invokeMethodAsync('GameLoop', timeStamp, game.canvas.width, game.canvas.height);
+        }
+
+        window.initGame = (instance) => {
+            var container = document.getElementById('container'),
+                canvases = container.getElementsByTagName('canvas') || [];
+            window.game = {
+                instance: instance,
+                canvas: canvases.length ? canvases[0] : null
+            };
+
+            window.addEventListener("resize", onResize);
+            onResize();
+
+            window.requestAnimationFrame(gameLoop);
+        };
+    </script>
     <script>navigator.serviceWorker.register('service-worker.js');</script>
 </body>
 

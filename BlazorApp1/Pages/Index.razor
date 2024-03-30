@@ -1,5 +1,76 @@
 ﻿@page "/"
+@using Blazor.Extensions
+@using Blazor.Extensions.Canvas
+@using Blazor.Extensions.Canvas.Canvas2D
+@inject IJSRuntime JsRuntime
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Canvas</PageTitle>
 
-<h1>Hello, world!</h1>
+<div id="container">
+    <BECanvas @ref="_canvas"></BECanvas>
+</div>
+
+@code
+{
+    // https://www.davidguida.net/blazor-and-2d-game-development-part-1-intro/
+
+    BECanvasComponent? _canvas;
+    Canvas2DContext? _context;
+
+    readonly GameTime _gameTime = new GameTime();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        await JsRuntime.InvokeAsync<object>("initGame", DotNetObjectReference.Create(this));
+        _context = await _canvas.CreateCanvas2DAsync();
+    }
+
+    [JSInvokable]
+    public async ValueTask GameLoop(float timeStamp, int screenWidth, int screenHeight)
+    {
+        _gameTime.TotalTime = timeStamp;
+        await Update(screenWidth, screenHeight);
+        await Render(screenWidth, screenHeight);
+    }
+
+    private async ValueTask Update(int width, int height)
+    {
+        await Task.CompletedTask; // ToDo physics (based on _gameTime.ElapsedTime)
+    }
+
+    private async ValueTask Render(int width, int height)
+    {
+        await this._context!.ClearRectAsync(0, 0, width, height);
+
+        // ToDo graphics
+        // await this._context.SetFillStyleAsync("green");
+        // await this._context.FillRectAsync(0, 0, width, height);
+    }
+
+    public class GameTime
+    {
+        private float _totalTime = 0;
+
+        /// <summary>
+        /// total time elapsed since the beginning of the game
+        /// </summary>
+        public float TotalTime
+        {
+            get => _totalTime;
+            set
+            {
+                this.ElapsedTime = value - _totalTime;
+                _totalTime = value;
+
+            }
+        }
+
+        /// <summary>
+        /// time elapsed since last frame
+        /// </summary>
+        public float ElapsedTime { get; private set; }
+    }
+}
